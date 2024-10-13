@@ -83,7 +83,7 @@ def obtener_saludo():
     elif 12 <= hora<18:
         return "buenas tardes, cómo están?, yo estoy muy superior gracias a Dios, y ustedes?;Mucho gusto, mi nombre es colmet, una Inteligencia artificial creada por Daniel"
     else:
-        return "Buenas noches, cómo está Señora luz marina?, yo estoy muy superior gracias a Dios, y ustedes?;Mucho gusto, mi nombre es colmet, una Inteligencia artificial creada por Daniel"
+        return "Buenas noches, cómo están?, yo estoy muy superior gracias a Dios, y ustedes?;Mucho gusto, mi nombre es colmet, una Inteligencia artificial creada por Daniel"
 def quien_es(person):
     try:
         info = wikipedia.summary(person, 1)
