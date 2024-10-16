@@ -4,8 +4,9 @@ import pywhatkit
 import datetime
 import wikipedia
 import webbrowser
-
-
+import pybible as pb
+import os
+import pyjokes
 #Configuración de voz
 recognizer = sr.Recognizer()
 
@@ -15,8 +16,6 @@ engine.setProperty('voices', voices[0].id)
 wikipedia.set_lang("es")
 
 #nombre del asistente
-
-
 nombre_asistente = "Colmet"
 
 #almacenamos nuestro nombre
@@ -101,16 +100,15 @@ def subir_volumen():
 def bajar_volumen():
     engine.setProperty('volume', engine.getProperty('volume') - 1)
     hablar("Volumen bajado")
-
+#buscar en la web
 def buscar_en_google(busqueda):
     url = f"https://www.google.com/search?q={busqueda}"
     webbrowser.open(url)
+# abrir redes y apps
 def abrir_youtube():
     webbrowser.open('https://www.youtube.com')
-
 def abrir_facebook():
     webbrowser.open('https://www.facebook.com')
-
 def abrir_discord():
     webbrowser.open('https://discord.com')
 def abrir_whatsapp():
@@ -120,6 +118,58 @@ def abrir_instagram():
 def abrir_spotify():
     url = 'https://www.spotify.com'
     webbrowser.open(url)
+def abrir_tiktok():
+    webbrowser.open('https://www.tiktok.com')
+def abrir_aplicacion(aplicacion):
+    try:
+        os.startfile(aplicacion)
+        hablar(f"Abriendo {aplicacion}")
+    except FileNotFoundError:
+        hablar(f"Lo siento, no encontré la aplicación {aplicacion}")
+
+def contar_broma():
+    joke = pyjokes.get_joke(language='es')
+    hablar(joke)
+    print(joke)
+#búsqueda de versículos, y libros de la bilbia (aún se está trabajando)
+def buscar_versiculo(libro, capitulo, versiculo, traduccion):
+    if traduccion == 'RV1960':
+        bible = pb.Bible('RV1960')
+    elif traduccion == 'NTV':
+        bible = pb.Bible('NTV')
+    elif traduccion == 'NIV':
+        bible = pb.Bible('NIV')
+    elif traduccion == 'LBLA':
+        bible = pb.Bible('LBLA')
+    else:
+        hablar("Lo siento, no tengo esa traducción disponible")
+        return
+
+    try:
+        verse = bible.get_verse(libro, capitulo, versiculo)
+        hablar(f"El versículo {versiculo} del capítulo {capitulo} del libro de {libro} dice: {verse}")
+    except pb.VersicleNotFoundError:
+        hablar(f"Lo siento, no encontré el versículo {versiculo} del capítulo {capitulo} del libro de {libro}")
+
+def buscar_libro(libro, traduccion):
+    if traduccion == 'RV1960':
+        bible = pb.Bible('RV1960')
+    elif traduccion == 'NTV':
+        bible = pb.Bible('NTV')
+    else:
+        hablar("Lo siento, no tengo esa traducción disponible")
+        return
+
+    try:
+        book = bible.get_book(libro)
+        hablar(f"El libro de {libro} tiene {len(book)} capítulos")
+    except pb.BookNotFoundError:
+        hablar(f"Lo siento, no encontré el libro de {libro}")
+
+
+
+
+
 def despedirse():
     hablar(f"Hasta luego Señor, tenga un buen día, un gusto conocer a sus compañeros")
 
@@ -212,15 +262,21 @@ while True:
         abrir_spotify()
         hablar("abriendo spotify")
         hablar(f"¿En qué más puedo ayudar?, {nombre_usuario.capitalize()}?")
-
+    elif 'abre tik tok' in comando or 'abrir tik tok' in comando:
+        abrir_tiktok()
+        hablar("abriendo tik tok")
+        hablar(f"¿En qué más puedo ayudar?, {nombre_usuario.capitalize()}?")
+    elif 'abre' in comando or 'abrir' in comando:
+        aplicacion = comando.replace('abre', '').replace('abrir', '').strip()
+        abrir_aplicacion(aplicacion)
+#reproducir música
     elif 'reproduce' in comando:
         busqueda = comando.replace('reproduce', '')
         hablar("Reproduciendo en youtube "+busqueda)
         pywhatkit.playonyt(busqueda)
-
+#dar la hora
         hablar(f"¿En qué más puedo ayudar?,{nombre_usuario.capitalize()}?")
     elif'hora' in comando:
-
         hora_actual = obtener_hora_actual()
         hablar(f"la hora actual es{hora_actual}")
     
@@ -230,9 +286,21 @@ while True:
 
     elif 'baja el volumen' in comando or 'bajar volumen' in comando:
         bajar_volumen()
+    #versículos y libros para la biblia    
+    elif 'qué dice el versículo' in comando or 'que dice el versículo' in comando:
+        libro, capitulo, versiculo, traduccion = comando.replace('qué dice el versículo', 'que dice el versículo' '').split()
+        buscar_versiculo(libro, capitulo, versiculo, traduccion)
 
+    elif 'busca libro' in comando:
+        libro, traduccion = comando.replace('buscar libro', '').split()
+        buscar_libro(libro, traduccion)
+    #bromas
+    elif 'cuéntame una broma' in comando or 'dime una broma' in comando:
+        contar_broma()
+    #despedidas
     elif 'gracias, adiós' in comando or 'hasta luego' in comando or 'chau' in comando:
         despedirse()
         break
     else:
         hablar("no entendí tu petición, ¿puedes repetir?, el margen de error que tengo es alto, Daniel solo me creó para algunas funciones específicas, y los parámetros con los que me han hecho son pocos, pero creánme que está encantado de mostrarle lo increíble que puede ser la inteligencia artificial.")
+# en caso dado no entienda la petición
