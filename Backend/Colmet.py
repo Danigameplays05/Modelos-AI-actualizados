@@ -7,6 +7,9 @@ import webbrowser
 import pybible as pb
 import os
 import pyjokes
+import matplotlib.pyplot as plt
+import numpy as np
+import seaborn as sns
 #Configuración de voz
 recognizer = sr.Recognizer()
 
@@ -126,7 +129,7 @@ def abrir_aplicacion(aplicacion):
         hablar(f"Abriendo {aplicacion}")
     except FileNotFoundError:
         hablar(f"Lo siento, no encontré la aplicación {aplicacion}")
-
+#decir bromas
 def contar_broma():
     joke = pyjokes.get_joke(language='es')
     hablar(joke)
@@ -150,7 +153,6 @@ def buscar_versiculo(libro, capitulo, versiculo, traduccion):
         hablar(f"El versículo {versiculo} del capítulo {capitulo} del libro de {libro} dice: {verse}")
     except pb.VersicleNotFoundError:
         hablar(f"Lo siento, no encontré el versículo {versiculo} del capítulo {capitulo} del libro de {libro}")
-
 def buscar_libro(libro, traduccion):
     if traduccion == 'RV1960':
         bible = pb.Bible('RV1960')
@@ -166,8 +168,68 @@ def buscar_libro(libro, traduccion):
     except pb.BookNotFoundError:
         hablar(f"Lo siento, no encontré el libro de {libro}")
 
+#graficar funciones, mapas, cosas relacionadas a física
+def graficar_funcion(funcion, rango):
+    x = np.linspace(rango[0], rango[1], 100)
+    y = eval(funcion)
+    plt.plot(x, y)
+    plt.title(f'Gráfico de {funcion}')
+    plt.xlabel('x')
+    plt.ylabel('f(x)')
+    plt.grid()
+    plt.show()
+
+def simular_movimiento(gravedad=9.81, tiempo=5):
+    t = np.linspace(0, tiempo, num=100)
+    h = (gravedad / 2) * t**2  # h = (1/2) * g * t^2
+    plt.plot(t, h)
+    plt.title('Simulación de Movimiento bajo Gravedad')
+    plt.xlabel('Tiempo (s)')
+    plt.ylabel('Altura (m)')
+    plt.grid()
+    plt.show()
+
+def crear_mapa_calor(datos):
+    sns.heatmap(datos, cmap='viridis')
+    plt.title('Mapa de Calor')
+    plt.show()
+#graficar sistema binario
+def graficar_sistema_binario(duracion, intervalo):
+    tiempo = np.arange(0, duracion, 0.1)  # Tiempo de 0 a 'duracion' con pasos de 0.1 segundos
+    estado = []
+
+    for t in tiempo:
+        if (t // intervalo) % 2 == 0:
+            estado.append(1)  # Estado encendido
+        else:
+            estado.append(0)  # Estado apagado
+
+    plt.step(tiempo, estado, where='post', label='Estado del Sistema Binario')
+    plt.title('Comportamiento del Sistema Binario')
+    plt.xlabel('Tiempo (s)')
+    plt.ylabel('Estado')
+    plt.yticks([0, 1], ['Apagado', 'Encendido'])
+    plt.grid()
+    plt.legend()
+    plt.show()
 
 
+#Convertir unidades
+def convertir_unidad(valor, unidad_origen, unidad_destino):
+    conversiones = {
+        'metros a pies': valor * 3.28084,
+        'pies a metros': valor / 3.28084,
+        'kilómetros a millas': valor * 0.621371,
+        'millas a kilómetros': valor / 0.621371,
+        'grados Celsius a grados Fahrenheit': (valor * 9/5) + 32,
+        'grados Fahrenheit a grados Celsius': (valor - 32) * 5/9,
+    }
+    
+    clave = f"{unidad_origen} a {unidad_destino}"
+    if clave in conversiones:
+        return conversiones[clave]
+    else:
+        return None
 
 
 def despedirse():
@@ -269,13 +331,14 @@ while True:
     elif 'abre' in comando or 'abrir' in comando:
         aplicacion = comando.replace('abre', '').replace('abrir', '').strip()
         abrir_aplicacion(aplicacion)
+        
 #reproducir música
     elif 'reproduce' in comando:
         busqueda = comando.replace('reproduce', '')
         hablar("Reproduciendo en youtube "+busqueda)
         pywhatkit.playonyt(busqueda)
-#dar la hora
         hablar(f"¿En qué más puedo ayudar?,{nombre_usuario.capitalize()}?")
+#dar la hora
     elif'hora' in comando:
         hora_actual = obtener_hora_actual()
         hablar(f"la hora actual es{hora_actual}")
@@ -286,6 +349,7 @@ while True:
 
     elif 'baja el volumen' in comando or 'bajar volumen' in comando:
         bajar_volumen()
+
     #versículos y libros para la biblia    
     elif 'qué dice el versículo' in comando or 'que dice el versículo' in comando:
         libro, capitulo, versiculo, traduccion = comando.replace('qué dice el versículo', 'que dice el versículo' '').split()
@@ -294,13 +358,56 @@ while True:
     elif 'busca libro' in comando:
         libro, traduccion = comando.replace('buscar libro', '').split()
         buscar_libro(libro, traduccion)
+
     #bromas
     elif 'cuéntame una broma' in comando or 'dime una broma' in comando:
         contar_broma()
+
+    #gráficas, funciones, mapas de calor
+    elif 'crea una función' in comando:
+        hablar('graficando función')
+        funcion = comando.replace('grafica una función', '').strip()
+        rango = [-10, 10]  # Puedes ajustar el rango según sea necesario
+        graficar_funcion(funcion, rango)
+        hablar('en qué más le puedo ayudar')
+    
+    elif 'simula movimiento' in comando:
+        hablar('Creando simulación')
+        simular_movimiento()
+    elif 'crea un mapa de calor' in comando:
+        hablar('creando un mapa de calor')
+        datos = np.random.rand(10, 10)  # Genera una matriz de 10x10 con datos aleatorios
+        crear_mapa_calor(datos)
+        hablar('en qué más puedo ayudar?')
+    elif 'grafica el sistema binario' in comando or 'graficar sistema binario' in comando:
+        # Puedes preguntar por duración e intervalo o usar valores predeterminados
+        hablar("¿Cuál es la duración de la simulación en segundos?")
+        duracion = float(escuchar_comando())
+        
+        hablar("¿Cuál es el intervalo en segundos?")
+        intervalo = float(escuchar_comando())
+        
+        graficar_sistema_binario(duracion, intervalo)
+        hablar("He graficado el sistema binario. ¿En qué más puedo ayudar?")
+
+        
+    # Aquí puedes definir cómo el usuario ingresará los datos para el mapa de calor
+    # Por ejemplo, podrías pedirle que hable una matriz de datos o cargar un archivo
+    # Para simplificar, aquí hay un ejemplo de datos aleatorios
+    elif 'convierte' in comando:
+        partes = comando.replace('convierte', '').strip().split(' a ')
+        valor, unidad_origen = partes[0].strip().split()
+        unidad_destino = partes[1].strip()
+        valor = float(valor)
+        resultado = convertir_unidad(valor, unidad_origen, unidad_destino)
+        if resultado is not None:
+            hablar(f"{valor} {unidad_origen} son {resultado} {unidad_destino}.")
+        else:
+            hablar("Lo siento, no puedo realizar esa conversión.")
     #despedidas
     elif 'gracias, adiós' in comando or 'hasta luego' in comando or 'chau' in comando:
         despedirse()
         break
     else:
-        hablar("no entendí tu petición, ¿puedes repetir?, el margen de error que tengo es alto, Daniel solo me creó para algunas funciones específicas, y los parámetros con los que me han hecho son pocos, pero creánme que está encantado de mostrarle lo increíble que puede ser la inteligencia artificial.")
+        hablar("no entendí tu petición, ¿puedes repetir?, el margen de error que tengo es alto, Daniel solo me creó para algunas funciones específicas, y los parámetros con los que me han hecho son pocos.")
 # en caso dado no entienda la petición
