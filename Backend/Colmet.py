@@ -497,3 +497,5 @@ while True:
         hablar("no entendí tu petición, ¿puedes repetir?, el margen de error que tengo es alto, Daniel solo me creó para algunas funciones específicas, y los parámetros con los que me han hecho son pocos.")
 # en caso dado no entienda la petición
 
+
+## holaaa
