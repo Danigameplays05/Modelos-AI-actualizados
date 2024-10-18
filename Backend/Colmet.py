@@ -10,12 +10,16 @@ import pyjokes
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
+from googletrans import Translator
+translator = Translator()
 #Configuración de voz
 recognizer = sr.Recognizer()
 
 engine = pyttsx3.init()
 voices = engine.getProperty('voices')
-engine.setProperty('voices', voices[0].id)
+engine.setProperty('voices', voices[2].id)
+for index, voice in enumerate(voices):
+    print(f"Voz {index}: {voice.name} - {voice.languages}")
 wikipedia.set_lang("es")
 
 #nombre del asistente
@@ -199,7 +203,7 @@ def graficar_sistema_binario(duracion, intervalo):
     estado = []
 
     for t in tiempo:
-        if (t // intervalo) % 2 == 0:
+        if (t // (intervalo / 2)) % 2 == 0:
             estado.append(1)  # Estado encendido
         else:
             estado.append(0)  # Estado apagado
@@ -212,7 +216,45 @@ def graficar_sistema_binario(duracion, intervalo):
     plt.grid()
     plt.legend()
     plt.show()
+def graficar_funciones_trigonometricas(funcion, rango):
+    x = np.linspace(rango[0], rango[1], 1000)  # Genera 1000 puntos en el rango especificado
 
+    if funcion == 'seno':
+        y = np.sin(x)
+        plt.title('Gráfico de la función seno')
+    elif funcion == 'coseno':
+        y = np.cos(x)
+        plt.title('Gráfico de la función coseno')
+    elif funcion == 'tangente':
+        y = np.tan(x)
+        plt.title('Gráfico de la función tangente')
+        plt.ylim(-10, 10)  # Limitar el rango de y para la tangente
+    else:
+        hablar("Función no reconocida. Usa 'seno', 'coseno' o 'tangente'.")
+        return
+
+    plt.plot(x, y)
+    plt.xlabel('x')
+    plt.ylabel(f'f(x) = {funcion}(x)')
+    plt.grid()
+    plt.axhline(0, color='black', lw=0.5, ls='--')
+    plt.axvline(0, color='black', lw=0.5, ls='--')
+    plt.show()
+def convertir_a_numero(texto):
+    numeros = {
+        'cero': 0,
+        'uno': 1,
+        'dos': 2,
+        'tres': 3,
+        'cuatro': 4,
+        'cinco': 5,
+        'seis': 6,
+        'siete': 7,
+        'ocho': 8,
+        'nueve': 9,
+        'diez': 10
+    }
+    return numeros.get(texto, None)
 
 #Convertir unidades
 def convertir_unidad(valor, unidad_origen, unidad_destino):
@@ -229,6 +271,15 @@ def convertir_unidad(valor, unidad_origen, unidad_destino):
     if clave in conversiones:
         return conversiones[clave]
     else:
+        return None
+    
+#traducir a inglés o hablar
+def traducir_a_ingles(texto):
+    try:
+        traduccion = translator.translate(texto, dest='en')
+        return traduccion.text
+    except Exception as e:
+        hablar("Lo siento, no pude traducir el texto.")
         return None
 
 
@@ -370,7 +421,6 @@ while True:
         rango = [-10, 10]  # Puedes ajustar el rango según sea necesario
         graficar_funcion(funcion, rango)
         hablar('en qué más le puedo ayudar')
-    
     elif 'simula movimiento' in comando:
         hablar('Creando simulación')
         simular_movimiento()
@@ -379,17 +429,41 @@ while True:
         datos = np.random.rand(10, 10)  # Genera una matriz de 10x10 con datos aleatorios
         crear_mapa_calor(datos)
         hablar('en qué más puedo ayudar?')
-    elif 'grafica el sistema binario' in comando or 'graficar sistema binario' in comando:
-        # Puedes preguntar por duración e intervalo o usar valores predeterminados
-        hablar("¿Cuál es la duración de la simulación en segundos?")
-        duracion = float(escuchar_comando())
         
-        hablar("¿Cuál es el intervalo en segundos?")
-        intervalo = float(escuchar_comando())
-        
+    elif  'sistema binario' in comando or 'sistema binario' in comando:
+        hablar("¿Cuál es la duración de la simulación en segundos? ")
+        duracion_input = escuchar_comando()
+        duracion = convertir_a_numero(duracion_input)
+        if duracion is None:
+            hablar("Lo siento, no entendí la duración. Por favor, usa números del cero al diez.")
+            continue
+        hablar("¿Cuál es el intervalo en segundo")
+        intervalo_input = escuchar_comando()
+        intervalo = convertir_a_numero(intervalo_input)
+        if intervalo is None:
+            hablar("Lo siento, no entendí el intervalo")
+            continue
         graficar_sistema_binario(duracion, intervalo)
-        hablar("He graficado el sistema binario. ¿En qué más puedo ayudar?")
+        hablar("He graficado el sistema binario. en qué más puedo ayudar?")
 
+    elif 'grafica una función trigonométrica' in comando or 'crea' in comando:
+        if 'seno' in comando:
+            escuchar_comando()
+            rango = (-2 * np.pi, 2 * np.pi)  # Rango para la función seno
+            graficar_funciones_trigonometricas('seno', rango)
+            hablar('graficando el seno')
+        elif 'coseno' in comando:
+            escuchar_comando()
+            rango = (-2 * np.pi, 2 * np.pi)  # Rango para la función coseno
+            graficar_funciones_trigonometricas('coseno', rango)
+            hablar('graficando el coseno')
+        elif 'tangente' in comando:
+            escuchar_comando()
+            rango = (-2 * np.pi, 2 * np.pi)  # Rango para la función tangente
+            graficar_funciones_trigonometricas('tangente', rango)
+            hablar('graficando la tangente')
+        else:
+            hablar("¿Qué función trigonométrica deseas graficar? Puedes decir 'seno', 'coseno' o 'tangente'.")
         
     # Aquí puedes definir cómo el usuario ingresará los datos para el mapa de calor
     # Por ejemplo, podrías pedirle que hable una matriz de datos o cargar un archivo
@@ -404,6 +478,17 @@ while True:
             hablar(f"{valor} {unidad_origen} son {resultado} {unidad_destino}.")
         else:
             hablar("Lo siento, no puedo realizar esa conversión.")
+    
+    #traducción, hablar
+    elif 'traduce al inglés' in comando or 'speak in english' in comando:
+        texto_a_traducir = comando.replace('traduce al inglés', '').strip()
+        traduccion = traducir_a_ingles(texto_a_traducir)
+        if traduccion:
+            hablar(f"La traducción es: {traduccion}")
+        elif comando.isascii():
+            hablar(f"Has hablado en inglés: {comando}")
+        else:
+            hablar(f"Has hablado en español")
     #despedidas
     elif 'gracias, adiós' in comando or 'hasta luego' in comando or 'chau' in comando:
         despedirse()
@@ -411,3 +496,4 @@ while True:
     else:
         hablar("no entendí tu petición, ¿puedes repetir?, el margen de error que tengo es alto, Daniel solo me creó para algunas funciones específicas, y los parámetros con los que me han hecho son pocos.")
 # en caso dado no entienda la petición
+
