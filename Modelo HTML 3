@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      overflow: hidden;
+      font-family: 'Arial', sans-serif;
+    }
+
+    .container {
+      width: 100%;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: #000000;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Animated background with depth */
+    .bg-layer {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at 50% 50%, #001428 0%, #000000 100%);
+    }
+
+    .stars {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        radial-gradient(2px 2px at 20% 30%, white, transparent),
+        radial-gradient(2px 2px at 60% 70%, white, transparent),
+        radial-gradient(1px 1px at 50% 50%, white, transparent),
+        radial-gradient(1px 1px at 80% 10%, white, transparent),
+        radial-gradient(2px 2px at 90% 60%, white, transparent),
+        radial-gradient(1px 1px at 33% 80%, white, transparent);
+      background-size: 200% 200%;
+      animation: starsMove 120s linear infinite;
+      opacity: 0.4;
+    }
+
+    @keyframes starsMove {
+      0% { background-position: 0% 0%; }
+      100% { background-position: 100% 100%; }
+    }
+
+    /* Professional grid overlay */
+    .grid-lines {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        linear-gradient(0deg, transparent 24%, rgba(0, 195, 255, 0.04) 25%, rgba(0, 195, 255, 0.04) 26%, transparent 27%, transparent 74%, rgba(0, 195, 255, 0.04) 75%, rgba(0, 195, 255, 0.04) 76%, transparent 77%, transparent),
+        linear-gradient(90deg, transparent 24%, rgba(0, 195, 255, 0.04) 25%, rgba(0, 195, 255, 0.04) 26%, transparent 27%, transparent 74%, rgba(0, 195, 255, 0.04) 75%, rgba(0, 195, 255, 0.04) 76%, transparent 77%, transparent);
+      background-size: 50px 50px;
+      pointer-events: none;
+    }
+
+    /* Corner brackets */
+    .corner {
+      position: absolute;
+      width: 100px;
+      height: 100px;
+      border: 3px solid;
+      border-color: rgba(0, 255, 255, 0.6);
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.4);
+      z-index: 100;
+    }
+
+    .corner-tl {
+      top: 40px;
+      left: 40px;
+      border-right: none;
+      border-bottom: none;
+      animation: cornerPulse 3s infinite;
+    }
+
+    .corner-tr {
+      top: 40px;
+      right: 40px;
+      border-left: none;
+      border-bottom: none;
+      animation: cornerPulse 3s 0.5s infinite;
+    }
+
+    .corner-bl {
+      bottom: 40px;
+      left: 40px;
+      border-right: none;
+      border-top: none;
+      animation: cornerPulse 3s 1s infinite;
+    }
+
+    .corner-br {
+      bottom: 40px;
+      right: 40px;
+      border-left: none;
+      border-top: none;
+      animation: cornerPulse 3s 1.5s infinite;
+    }
+
+    @keyframes cornerPulse {
+      0%, 100% { opacity: 0.6; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.05); }
+    }
+
+    /* Status bar */
+    .status-bar {
+      position: absolute;
+      top: 30px;
+      right: 160px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 25px;
+      background: rgba(0, 30, 60, 0.5);
+      border: 1px solid rgba(0, 255, 255, 0.4);
+      border-radius: 30px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 0 30px rgba(0, 255, 255, 0.2);
+      z-index: 100;
+    }
+
+    .status-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #00ff88;
+      box-shadow: 0 0 15px #00ff88, 0 0 30px #00ff88;
+      animation: statusBlink 2s infinite;
+    }
+
+    @keyframes statusBlink {
+      0%, 100% { opacity: 1; box-shadow: 0 0 15px #00ff88, 0 0 30px #00ff88; }
+      50% { opacity: 0.5; box-shadow: 0 0 5px #00ff88; }
+    }
+
+    .status-text {
+      color: #00ffff;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      letter-spacing: 2px;
+      text-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+    }
+
+    /* Top label */
+    .top-label {
+      position: absolute;
+      top: 35px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: rgba(0, 255, 255, 0.9);
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      text-shadow: 0 0 20px rgba(0, 255, 255, 0.8);
+      z-index: 100;
+      animation: textGlow 3s infinite;
+    }
+
+    @keyframes textGlow {
+      0%, 100% { opacity: 0.8; text-shadow: 0 0 20px rgba(0, 255, 255, 0.8); }
+      50% { opacity: 1; text-shadow: 0 0 30px rgba(0, 255, 255, 1), 0 0 40px rgba(0, 255, 255, 0.6); }
+    }
+
+    /* Main logo container */
+    .logo-container {
+      position: relative;
+      width: 700px;
+      height: 700px;
+      transform-style: preserve-3d;
+      animation: logoFloat 8s ease-in-out infinite;
+      filter: drop-shadow(0 30px 80px rgba(0, 195, 255, 0.5));
+    }
+
+    @keyframes logoFloat {
+      0%, 100% { 
+        transform: translateY(0px) rotateX(0deg) rotateY(0deg); 
+      }
+      25% { 
+        transform: translateY(-20px) rotateX(3deg) rotateY(-3deg); 
+      }
+      50% { 
+        transform: translateY(-30px) rotateX(0deg) rotateY(0deg); 
+      }
+      75% { 
+        transform: translateY(-20px) rotateX(-3deg) rotateY(3deg); 
+      }
+    }
+
+    /* Rotating rings */
+    .ring {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      border: 2px solid;
+      opacity: 0.4;
+    }
+
+    .ring-1 {
+      width: 720px;
+      height: 720px;
+      border-color: rgba(0, 255, 255, 0.6);
+      animation: ringRotate 25s linear infinite;
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.3), inset 0 0 20px rgba(0, 255, 255, 0.2);
+    }
+
+    .ring-2 {
+      width: 680px;
+      height: 680px;
+      border-color: rgba(0, 200, 255, 0.5);
+      animation: ringRotateReverse 20s linear infinite;
+      box-shadow: 0 0 15px rgba(0, 200, 255, 0.3);
+    }
+
+    .ring-3 {
+      width: 640px;
+      height: 640px;
+      border-color: rgba(0, 150, 255, 0.4);
+      animation: ringRotate 15s linear infinite;
+      box-shadow: 0 0 10px rgba(0, 150, 255, 0.2);
+    }
+
+    @keyframes ringRotate {
+      from { transform: translate(-50%, -50%) rotate(0deg); }
+      to { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+
+    @keyframes ringRotateReverse {
+      from { transform: translate(-50%, -50%) rotate(360deg); }
+      to { transform: translate(-50%, -50%) rotate(0deg); }
+    }
+
+    /* SVG Container */
+    .svg-wrapper {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      z-index: 10;
+      filter: drop-shadow(0 0 40px rgba(0, 255, 255, 0.7)) 
+              drop-shadow(0 0 80px rgba(0, 195, 255, 0.4));
+    }
+
+    /* Hologram scan effect */
+    .scan-line {
+      position: absolute;
+      width: 120%;
+      height: 4px;
+      left: -10%;
+      background: linear-gradient(to right, 
+        transparent 0%,
+        rgba(0, 255, 255, 0.3) 20%,
+        rgba(0, 255, 255, 1) 50%,
+        rgba(0, 255, 255, 0.3) 80%,
+        transparent 100%
+      );
+      box-shadow: 0 0 30px rgba(0, 255, 255, 1), 0 0 60px rgba(0, 255, 255, 0.5);
+      animation: scanMove 3s linear infinite;
+      z-index: 20;
+    }
+
+    @keyframes scanMove {
+      0% { top: -5%; opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { top: 105%; opacity: 0; }
+    }
+
+    /* Hologram overlay */
+    .hologram-overlay {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        to bottom,
+        rgba(0, 255, 255, 0.05) 0%,
+        transparent 50%,
+        rgba(0, 255, 255, 0.05) 100%
+      );
+      animation: hologramShimmer 4s ease-in-out infinite;
+      pointer-events: none;
+      z-index: 15;
+    }
+
+    @keyframes hologramShimmer {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 0.6; }
+    }
+
+    /* Energy particles */
+    .particles-container {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .particle {
+      position: absolute;
+      width: 3px;
+      height: 3px;
+      background: #00ffff;
+      border-radius: 50%;
+      box-shadow: 0 0 10px #00ffff;
+      animation: particleFloat 4s infinite ease-in-out;
+      opacity: 0;
+    }
+
+    @keyframes particleFloat {
+      0%, 100% { 
+        opacity: 0; 
+        transform: translate(0, 0) scale(1); 
+      }
+      50% { 
+        opacity: 1; 
+        transform: translate(var(--tx), var(--ty)) scale(1.5); 
+      }
+    }
+
+    /* Audio wave visualizer */
+    .wave-container {
+      position: relative;
+      width: 450px;
+      height: 120px;
+      margin-top: 70px;
+      background: linear-gradient(135deg, rgba(0, 30, 60, 0.4), rgba(0, 50, 80, 0.3));
+      border-radius: 60px;
+      padding: 20px;
+      border: 2px solid rgba(0, 255, 255, 0.4);
+      box-shadow: 
+        0 0 40px rgba(0, 255, 255, 0.3),
+        inset 0 0 30px rgba(0, 255, 255, 0.1);
+      backdrop-filter: blur(15px);
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .wave-bar {
+      width: 5px;
+      height: 20%;
+      background: linear-gradient(to top, #0066cc, #00ccff, #00ffff);
+      border-radius: 10px;
+      animation: waveMove ease-in-out infinite;
+      box-shadow: 0 0 10px rgba(0, 255, 255, 0.6);
+    }
+
+    @keyframes waveMove {
+      0%, 100% { 
+        height: 20%; 
+        opacity: 0.5;
+      }
+      50% { 
+        height: 90%; 
+        opacity: 1;
+      }
+    }
+
+    /* Data stream text */
+    .data-stream {
+      position: absolute;
+      bottom: 100px;
+      width: 100%;
+      text-align: center;
+      font-family: 'Courier New', monospace;
+      color: rgba(0, 255, 255, 0.5);
+      font-size: 11px;
+      letter-spacing: 3px;
+      animation: dataFlow 15s linear infinite;
+      z-index: 40;
+    }
+
+    @keyframes dataFlow {
+      0% { opacity: 0; transform: translateX(100%); }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { opacity: 0; transform: translateX(-100%); }
+    }
+
+    /* Bottom tech label */
+    .bottom-label {
+      position: absolute;
+      bottom: 35px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: rgba(0, 255, 255, 0.7);
+      font-family: 'Courier New', monospace;
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      z-index: 100;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Background layers -->
+    <div class="bg-layer"></div>
+    <div class="stars"></div>
+    <div class="grid-lines"></div>
+
+    <!-- Corner frames -->
+    <div class="corner corner-tl"></div>
+    <div class="corner corner-tr"></div>
+    <div class="corner corner-bl"></div>
+    <div class="corner corner-br"></div>
+
+    <!-- Status indicator -->
+    <div class="status-bar">
+      <div class="status-dot"></div>
+      <div class="status-text">SISTEMA ACTIVO</div>
+    </div>
+
+    <!-- Labels -->
+    <div class="top-label">SISTEMA DE PRESENTACIÓN HOLOGRÁFICA AVANZADA</div>
+    <div class="bottom-label">TECNOLOGÍA DE PRÓXIMA GENERACIÓN • v4.0</div>
+
+    <!-- Main logo container -->
+    <div class="logo-container">
+      <!-- Rotating rings -->
+      <div class="ring ring-1"></div>
+      <div class="ring ring-2"></div>
+      <div class="ring ring-3"></div>
+
+      <!-- Particles -->
+      <div class="particles-container" id="particlesContainer"></div>
+
+      <!-- SVG Logo -->
+      <div class="svg-wrapper">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800">
+          <defs>
+            <!-- Enhanced gradients -->
+            <radialGradient id="centerGlow">
+              <stop offset="0%" stop-color="#00ffff" stop-opacity="0.8"/>
+              <stop offset="50%" stop-color="#0099ff" stop-opacity="0.4"/>
+              <stop offset="100%" stop-color="#003366" stop-opacity="0"/>
+            </radialGradient>
+            
+            <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#00ffff"/>
+              <stop offset="50%" stop-color="#00ccff"/>
+              <stop offset="100%" stop-color="#0099ff"/>
+            </linearGradient>
+
+            <linearGradient id="ringGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#00ffff" stop-opacity="0.9"/>
+              <stop offset="100%" stop-color="#0066cc" stop-opacity="0.6"/>
+            </linearGradient>
+
+            <!-- Glow filter -->
+            <filter id="glow">
+              <feGaussianBlur stdDeviation="5" result="coloredBlur"/>
+              <feMerge>
+                <feMergeNode in="coloredBlur"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
+
+            <!-- Strong glow filter -->
+            <filter id="strongGlow">
+              <feGaussianBlur stdDeviation="8" result="coloredBlur"/>
+              <feMerge>
+                <feMergeNode in="coloredBlur"/>
+                <feMergeNode in="coloredBlur"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
+
+            <!-- Circuit pattern -->
+            <pattern id="circuit" x="0" y="0" width="30" height="30" patternUnits="userSpaceOnUse">
+              <path d="M0 15 L30 15 M15 0 L15 30" stroke="#00ccff" stroke-width="0.5" opacity="0.3"/>
+              <circle cx="15" cy="15" r="2" fill="#00ffff" opacity="0.5"/>
+              <circle cx="0" cy="0" r="1" fill="#00ffff" opacity="0.7"/>
+              <circle cx="30" cy="30" r="1" fill="#00ffff" opacity="0.7"/>
+            </pattern>
+          </defs>
+
+          <!-- Background glow -->
+          <circle cx="400" cy="400" r="400" fill="url(#centerGlow)" opacity="0.3"/>
+
+          <!-- Circuit pattern background -->
+          <circle cx="400" cy="400" r="380" fill="url(#circuit)" opacity="0.6"/>
+
+          <!-- Outer ring with gradient -->
+          <circle cx="400" cy="400" r="360" 
+                  fill="none" 
+                  stroke="url(#ringGradient)" 
+                  stroke-width="6"
+                  filter="url(#glow)"/>
+
+          <!-- Secondary rings -->
+          <circle cx="400" cy="400" r="340" fill="none" stroke="#00ccff" stroke-width="2" opacity="0.6"/>
+          <circle cx="400" cy="400" r="320" fill="none" stroke="#00ffff" stroke-width="1" opacity="0.4"/>
+
+          <!-- Main infinity loop design -->
+          <path d="M220 400 Q400 220 580 400 Q400 580 220 400 Z" 
+                fill="none" 
+                stroke="url(#lineGradient)" 
+                stroke-width="12"
+                stroke-linecap="round"
+                filter="url(#strongGlow)"/>
+
+          <!-- Inner infinity highlight -->
+          <path d="M230 400 Q400 230 570 400 Q400 570 230 400 Z" 
+                fill="none" 
+                stroke="#00ffff" 
+                stroke-width="3"
+                opacity="0.6"/>
+
+          <!-- Center circle complex -->
+          <circle cx="400" cy="400" r="90" 
+                  fill="none" 
+                  stroke="url(#ringGradient)" 
+                  stroke-width="5"
+                  filter="url(#glow)"/>
+          
+          <circle cx="400" cy="400" r="80" 
+                  fill="rgba(0, 50, 100, 0.3)" 
+                  stroke="#00ffff" 
+                  stroke-width="2"
+                  opacity="0.8"/>
+
+          <!-- Center cross -->
+          <path d="M310 400 L490 400 M400 310 L400 490" 
+                stroke="url(#lineGradient)" 
+                stroke-width="4"
+                stroke-linecap="round"
+                filter="url(#glow)"/>
+
+          <!-- Center diamond shape -->
+          <path d="M350 400 L400 350 L450 400 L400 450 Z" 
+                fill="none" 
+                stroke="#00ffff" 
+                stroke-width="3"
+                filter="url(#glow)"/>
+
+          <!-- Connection nodes at cardinal points -->
+          <g id="nodes">
+            <circle cx="400" cy="310" r="8" fill="#00ffff" filter="url(#strongGlow)">
+              <animate attributeName="r" values="8;12;8" dur="2s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="400" cy="490" r="8" fill="#00ffff" filter="url(#strongGlow)">
+              <animate attributeName="r" values="8;12;8" dur="2s" begin="0.5s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="310" cy="400" r="8" fill="#00ffff" filter="url(#strongGlow)">
+              <animate attributeName="r" values="8;12;8" dur="2s" begin="1s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="490" cy="400" r="8" fill="#00ffff" filter="url(#strongGlow)">
+              <animate attributeName="r" values="8;12;8" dur="2s" begin="1.5s" repeatCount="indefinite"/>
+            </circle>
+          </g>
+
+          <!-- Extended connection lines -->
+          <g id="connections" stroke="#00ccff" stroke-width="3" opacity="0.8">
+            <line x1="400" y1="310" x2="400" y2="200" filter="url(#glow)"/>
+            <line x1="400" y1="490" x2="400" y2="600" filter="url(#glow)"/>
+            <line x1="310" y1="400" x2="200" y2="400" filter="url(#glow)"/>
+            <line x1="490" y1="400" x2="600" y2="400" filter="url(#glow)"/>
+          </g>
+
+          <!-- End node squares -->
+          <g id="endNodes">
+            <rect x="395" y="195" width="10" height="10" fill="none" stroke="#00ffff" stroke-width="2"/>
+            <rect x="395" y="595" width="10" height="10" fill="none" stroke="#00ffff" stroke-width="2"/>
+            <rect x="195" y="395" width="10" height="10" fill="none" stroke="#00ffff" stroke-width="2"/>
+            <rect x="595" y="395" width="10" height="10" fill="none" stroke="#00ffff" stroke-width="2"/>
+          </g>
+
+          <!-- Energy points -->
+          <g id="energy">
+            <circle cx="400" cy="200" r="10" fill="#00ffff" filter="url(#strongGlow)">
+              <animate attributeName="opacity" values="0.5;1;0.5" dur="3s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="400" cy="600" r="10" fill="#00ffff" filter="url(#strongGlow)">
+              <animate attributeName="opacity" values="0.5;1;0.5" dur="3s" begin="0.75s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="200" cy="400" r="10" fill="#00ffff" filter="url(#strongGlow)">
+              <animate attributeName="opacity" values="0.5;1;0.5" dur="3s" begin="1.5s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="600" cy="400" r="10" fill="#00ffff" filter="url(#strongGlow)">
+              <animate attributeName="opacity" values="0.5;1;0.5" dur="3s" begin="2.25s" repeatCount="indefinite"/>
+            </circle>
+          </g>
+
+          <!-- Main title -->
+          <text x="400" y="680" 
+                text-anchor="middle" 
+                fill="url(#lineGradient)" 
+                font-family="Arial, sans-serif" 
+                font-size="32"
+                font-weight="bold"
+                letter-spacing="4"
+                filter="url(#glow)">
+            CIENCIA Y CULTURA PARA EL FUTURO
+          </text>
+
+          <!-- Subtitle -->
+          <text x="400" y="715" 
+                text-anchor="middle" 
+                fill="#00ccff" 
+                font-family="Courier New, monospace" 
+                font-size="14"
+                letter-spacing="3"
+                opacity="0.8">
+            INNOVACIÓN • TECNOLOGÍA • CONOCIMIENTO
+          </text>
+        </svg>
+      </div>
+
+      <!-- Hologram effects -->
+      <div class="hologram-overlay"></div>
+      <div class="scan-line"></div>
+    </div>
+
+    <!-- Audio wave visualizer -->
+    <div class="wave-container" id="waveContainer"></div>
+
+    <!-- Data stream -->
+    <div class="data-stream">
+      INICIALIZANDO SISTEMAS AVANZADOS... PROCESANDO DATOS CUÁNTICOS... CONECTANDO RED NEURONAL GLOBAL... OPTIMIZANDO PARÁMETROS...
+    </div>
+  </div>
+
+  <script>
+    // Create particles with random positions and animations
+    const particlesContainer = document.getElementById('particlesContainer');
+    for (let i = 0; i < 60; i++) {
+      const particle = document.createElement('div');
+      particle.className = 'particle';
+      
+      const angle = (Math.PI * 2 * i) / 60;
+      const radius = 250 + Math.random() * 100;
+      const startX = Math.cos(angle) * radius;
+      const startY = Math.sin(angle) * radius;
+      
+      particle.style.left = `${50 + (startX / 7)}%`;
+      particle.style.top = `${50 + (startY / 7)}%`;
+      particle.style.setProperty('--tx', `${Math.cos(angle) * (Math.random() * 50 + 30)}px`);
+      particle.style.setProperty('--ty', `${Math.sin(angle) * (Math.random() * 50 + 30)}px`);
+      particle.style.animationDelay = `${Math.random() * 4}s`;
+      particle.style.animationDuration = `${3 + Math.random() * 2}s`;
+      
+      particlesContainer.appendChild(particle);
+    }
+
+    // Create audio wave bars
+    const waveContainer = document.getElementById('waveContainer');
+    for (let i = 0; i < 50; i++) {
+      const bar = document.createElement('div');
+      bar.className = 'wave-bar';
+      bar.style.animationDelay = `${i * 0.05}s`;
+      bar.style.animationDuration = `${1 + Math.random() * 0.5}s`;
+      waveContainer.appendChild(bar);
+    }
+  </script>
+</body>
+</html>
